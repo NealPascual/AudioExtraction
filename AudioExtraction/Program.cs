@@ -22,11 +22,7 @@ public class AudioExtraction
             FileDecrypt(FilePath, "nealpascual");
         
     }
-    //  Call this function to remove the key from memory after use for security
-    [DllImport("KERNEL32.DLL", EntryPoint = "RtlZeroMemory")]
-    public static extern bool ZeroMemory(IntPtr Destination, int Length);
-
-
+        
     public static byte[] GenerateRandomSalt()
     {
         byte[] data = new byte[32];
@@ -35,7 +31,7 @@ public class AudioExtraction
         {
             for (int i = 0; i < 10; i++)
             {
-                // Fille the buffer with the generated data
+                // Fill the buffer with the generated data
                 rng.GetBytes(data);
             }
         }
@@ -44,15 +40,13 @@ public class AudioExtraction
     }
 
     private static void FileEncrypt(string inputFile, string password)
-    {
-        //http://stackoverflow.com/questions/27645527/aes-encryption-on-large-files
+    {       
 
         //generate random salt
         byte[] salt = GenerateRandomSalt();
 
         //create output file name
-        FileStream fsCrypt = new FileStream(inputFile + ".aes", FileMode.Create);
-        //FileStream fsCrypt = new FileStream(@"C:\Users\neal.pascual\Desktop\test\encrypted.txt", FileMode.Create);
+        FileStream fsCrypt = new FileStream(inputFile + ".aes", FileMode.Create);        
 
         //convert password string to byte arrray
         byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
@@ -62,14 +56,11 @@ public class AudioExtraction
         AES.KeySize = 256;
         AES.BlockSize = 128;
         AES.Padding = PaddingMode.PKCS7;
-
-        //http://stackoverflow.com/questions/2659214/why-do-i-need-to-use-the-rfc2898derivebytes-class-in-net-instead-of-directly
-        //"What it does is repeatedly hash the user password along with the salt." High iteration counts.
+                        
         var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
         AES.Key = key.GetBytes(AES.KeySize / 8);
         AES.IV = key.GetBytes(AES.BlockSize / 8);
-
-        //Cipher modes: http://security.stackexchange.com/questions/52665/which-is-the-best-cipher-mode-and-padding-mode-for-aes-encryption
+                
         AES.Mode = CipherMode.CFB;
 
         // write salt to the begining of the output file, so in this case can be random every time
@@ -86,8 +77,7 @@ public class AudioExtraction
         try
         {
             while ((read = fsIn.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                //Application.DoEvents(); // -> for responsive GUI, using Task will be better!
+            {                
                 cs.Write(buffer, 0, read);
             }
 
