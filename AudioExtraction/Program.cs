@@ -11,28 +11,36 @@ public class AudioExtraction
         string FilePath;
         string StoragePath;
         string ActionType;
-        
+
         if (args.Length == 2)
         {
             FilePath = args[0];
             StoragePath = null;
             ActionType = args[1];
         }
-        else
+        else if (args.Length == 3)
         {
             FilePath = args[0];
             StoragePath = args[1];
             ActionType = args[2];
+        }
+        else
+        {
+            FilePath = null;
+            StoragePath = null;
+            ActionType = null;            
         }
 
         var password = System.Configuration.ConfigurationManager.AppSettings["pass"];
         
         try
         {
-            if (ActionType == "e")
+            if (ActionType == "Encrypt" && FilePath != null)
                 FileEncrypt(FilePath, StoragePath, password);
-            else
+            else if(ActionType == "Decrypt" && FilePath != null)
                 FileDecrypt(FilePath, StoragePath, password);
+            else
+                Console.WriteLine("Invalid number of arguments");
 
             Console.WriteLine((ActionType == "Encrypt" ? "Encryption" : "Decryption") + " successful.");
             Console.ReadKey();
