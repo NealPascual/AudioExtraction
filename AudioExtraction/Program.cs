@@ -9,8 +9,18 @@ public class AudioExtraction
     {
         //FileEncrypt(@"C:\Users\neal.pascual\Desktop\test\sample_wav_10.wav", "nealpascual");
         //FileEncrypt(@"C:\Users\neal.pascual\Desktop\test\in.txt", "nealpascual");
-        FileDecrypt(@"C:\Users\neal.pascual\Desktop\test\in.txt", "nealpascual");
+        //FileDecrypt(@"C:\Users\neal.pascual\Desktop\test\in.txt", "nealpascual");
         //FileDecrypt(@"C:\Users\neal.pascual\Desktop\test\sample_wav_10.wav", "nealpascual");
+        Console.WriteLine("Please enter File Path");
+        var FilePath = Console.ReadLine();
+        Console.WriteLine("Write e for Encrypt and d for Decrypt");
+        var ActionType = Console.ReadLine();
+
+        if (ActionType == "e")        
+            FileEncrypt(FilePath, "nealpascual");        
+        else         
+            FileDecrypt(FilePath, "nealpascual");
+        
     }
     //  Call this function to remove the key from memory after use for security
     [DllImport("KERNEL32.DLL", EntryPoint = "RtlZeroMemory")]
