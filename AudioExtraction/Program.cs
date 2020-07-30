@@ -8,9 +8,22 @@ public class AudioExtraction
 
     public static void Main(string[] args)
     {
-        var FilePath = args[0];
-        var StoragePath = args[1];
-        var ActionType = args[2];
+        string FilePath;
+        string StoragePath;
+        string ActionType;
+        
+        if (args.Length == 2)
+        {
+            FilePath = args[0];
+            StoragePath = null;
+            ActionType = args[1];
+        }
+        else
+        {
+            FilePath = args[0];
+            StoragePath = args[1];
+            ActionType = args[2];
+        }
 
         var password = System.Configuration.ConfigurationManager.AppSettings["pass"];
         Console.WriteLine(password);
