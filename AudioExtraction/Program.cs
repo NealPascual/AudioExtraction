@@ -26,7 +26,7 @@ public class AudioExtraction
         }
 
         var password = System.Configuration.ConfigurationManager.AppSettings["pass"];
-        Console.WriteLine(password);
+        
         try
         {
             if (ActionType == "e")
