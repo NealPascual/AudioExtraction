@@ -13,7 +13,7 @@ public class AudioExtraction
         var ActionType = args[2];
 
         var password = System.Configuration.ConfigurationManager.AppSettings["pass"];
-
+        Console.WriteLine(password);
         try
         {
             if (ActionType == "e")
