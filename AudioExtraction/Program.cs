@@ -36,14 +36,21 @@ public class AudioExtraction
         try
         {
             if (ActionType == "Encrypt" && FilePath != null)
+            {
                 FileEncrypt(FilePath, StoragePath, password);
-            else if(ActionType == "Decrypt" && FilePath != null)
+                Console.WriteLine((ActionType == "Encrypt" ? "Encryption" : "Decryption") + " successful.");
+                Console.ReadKey();
+            }
+            else if (ActionType == "Decrypt" && FilePath != null)
+            {
                 FileDecrypt(FilePath, StoragePath, password);
+                Console.WriteLine((ActionType == "Encrypt" ? "Encryption" : "Decryption") + " successful.");
+                Console.ReadKey();
+            }
             else
                 Console.WriteLine("Invalid number of arguments");
 
-            Console.WriteLine((ActionType == "Encrypt" ? "Encryption" : "Decryption") + " successful.");
-            Console.ReadKey();
+            
         }
         catch (Exception ex)
         {
