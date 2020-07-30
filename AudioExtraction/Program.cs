@@ -49,124 +49,65 @@ public class AudioExtraction
     }
 
     private static void FileEncrypt(string inputFile, string storagePath,string password)
-    {
-        if (storagePath == null)
+    {       
+
+        //generate random salt
+        byte[] salt = GenerateRandomSalt();
+
+
+        storagePath = (storagePath == null) ? inputFile : storagePath;
+        //create output file name
+        FileStream fsCrypt = new FileStream(storagePath + ".aes", FileMode.Create);        
+
+        //convert password string to byte arrray
+        byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+
+        //Set Rijndael symmetric encryption algorithm
+        RijndaelManaged AES = new RijndaelManaged();
+        AES.KeySize = 256;
+        AES.BlockSize = 128;
+        AES.Padding = PaddingMode.PKCS7;
+                        
+        var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
+        AES.Key = key.GetBytes(AES.KeySize / 8);
+        AES.IV = key.GetBytes(AES.BlockSize / 8);
+                
+        AES.Mode = CipherMode.CFB;
+
+        // write salt to the begining of the output file, so in this case can be random every time
+        fsCrypt.Write(salt, 0, salt.Length);
+
+        CryptoStream cs = new CryptoStream(fsCrypt, AES.CreateEncryptor(), CryptoStreamMode.Write);
+
+        FileStream fsIn = new FileStream(inputFile, FileMode.Open);
+
+        //create a buffer (1mb) so only this amount will allocate in the memory and not the whole file
+        byte[] buffer = new byte[1048576];
+        int read;
+
+        try
         {
-            //generate random salt
-            byte[] salt = GenerateRandomSalt();
-
-            //create output file name
-            FileStream fsCrypt = new FileStream(inputFile + ".aes", FileMode.Create);
-
-            //convert password string to byte arrray
-            byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
-
-            //Set Rijndael symmetric encryption algorithm
-            RijndaelManaged AES = new RijndaelManaged();
-            AES.KeySize = 256;
-            AES.BlockSize = 128;
-            AES.Padding = PaddingMode.PKCS7;
-
-            var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
-            AES.Key = key.GetBytes(AES.KeySize / 8);
-            AES.IV = key.GetBytes(AES.BlockSize / 8);
-
-            AES.Mode = CipherMode.CFB;
-
-            // write salt to the begining of the output file, so in this case can be random every time
-            fsCrypt.Write(salt, 0, salt.Length);
-
-            CryptoStream cs = new CryptoStream(fsCrypt, AES.CreateEncryptor(), CryptoStreamMode.Write);
-
-            FileStream fsIn = new FileStream(inputFile, FileMode.Open);
-
-            //create a buffer (1mb) so only this amount will allocate in the memory and not the whole file
-            byte[] buffer = new byte[1048576];
-            int read;
-
-            try
-            {
-                while ((read = fsIn.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    cs.Write(buffer, 0, read);
-                }
-
-                // Close up
-                fsIn.Close();
-                //fsCrypt.Close(); //temp
+            while ((read = fsIn.Read(buffer, 0, buffer.Length)) > 0)
+            {                
+                cs.Write(buffer, 0, read);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex.Message);
-            }
-            finally
-            {
-                cs.Close();
-                fsCrypt.Close();
 
-                File.Delete(inputFile);
-                FileInfo fi = new FileInfo(inputFile + ".aes");
-                fi.MoveTo(inputFile);
-            }
+            // Close up
+            fsIn.Close();
+            //fsCrypt.Close(); //temp
         }
-        else 
+        catch (Exception ex)
         {
-            //generate random salt
-            byte[] salt = GenerateRandomSalt();
+            Console.WriteLine("Error: " + ex.Message);
+        }
+        finally
+        {
+            cs.Close();
+            fsCrypt.Close();
 
-            //create output file name
-            FileStream fsCrypt = new FileStream(inputFile + ".aes", FileMode.Create);
-
-            //convert password string to byte arrray
-            byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
-
-            //Set Rijndael symmetric encryption algorithm
-            RijndaelManaged AES = new RijndaelManaged();
-            AES.KeySize = 256;
-            AES.BlockSize = 128;
-            AES.Padding = PaddingMode.PKCS7;
-
-            var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
-            AES.Key = key.GetBytes(AES.KeySize / 8);
-            AES.IV = key.GetBytes(AES.BlockSize / 8);
-
-            AES.Mode = CipherMode.CFB;
-
-            // write salt to the begining of the output file, so in this case can be random every time
-            fsCrypt.Write(salt, 0, salt.Length);
-
-            CryptoStream cs = new CryptoStream(fsCrypt, AES.CreateEncryptor(), CryptoStreamMode.Write);
-
-            FileStream fsIn = new FileStream(inputFile, FileMode.Open);
-
-            //create a buffer (1mb) so only this amount will allocate in the memory and not the whole file
-            byte[] buffer = new byte[1048576];
-            int read;
-
-            try
-            {
-                while ((read = fsIn.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    cs.Write(buffer, 0, read);
-                }
-
-                // Close up
-                fsIn.Close();
-                //fsCrypt.Close(); //temp
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: " + ex.Message);
-            }
-            finally
-            {
-                cs.Close();
-                fsCrypt.Close();
-
-                File.Delete(inputFile);
-                FileInfo fi = new FileInfo(inputFile + ".aes");
-                fi.MoveTo(inputFile);
-            }
+            File.Delete(inputFile);
+            FileInfo fi = new FileInfo(inputFile + ".aes");
+            fi.MoveTo(inputFile);
         }
     }
 
@@ -189,7 +130,9 @@ public class AudioExtraction
 
         CryptoStream cs = new CryptoStream(fsCrypt, AES.CreateDecryptor(), CryptoStreamMode.Read);
 
-        FileStream fsOut = new FileStream(inputFile + ".aes", FileMode.Create);
+
+        storagePath = (storagePath == null) ? inputFile : storagePath;
+        FileStream fsOut = new FileStream(storagePath + ".aes", FileMode.Create);
 
         int read;
         byte[] buffer = new byte[1048576];
