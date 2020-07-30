@@ -5,24 +5,51 @@ using System.Security.Cryptography;
 
 public class AudioExtraction
 {
-    public static void Main()
-    {
-        //FileEncrypt(@"C:\Users\neal.pascual\Desktop\test\sample_wav_10.wav", "nealpascual");
-        //FileEncrypt(@"C:\Users\neal.pascual\Desktop\test\in.txt", "nealpascual");
-        //FileDecrypt(@"C:\Users\neal.pascual\Desktop\test\in.txt", "nealpascual");
-        //FileDecrypt(@"C:\Users\neal.pascual\Desktop\test\sample_wav_10.wav", "nealpascual");
-        Console.WriteLine("Please enter File Path");
-        var FilePath = Console.ReadLine();
-        Console.WriteLine("Write e for Encrypt and d for Decrypt");
-        var ActionType = Console.ReadLine();
+    //public static void Main()
+    //{
+    //    //FileEncrypt(@"C:\Users\neal.pascual\Desktop\test\sample_wav_10.wav", "nealpascual");
+    //    //FileEncrypt(@"C:\Users\neal.pascual\Desktop\test\in.txt", "nealpascual");
+    //    //FileDecrypt(@"C:\Users\neal.pascual\Desktop\test\in.txt", "nealpascual");
+    //    //FileDecrypt(@"C:\Users\neal.pascual\Desktop\test\sample_wav_10.wav", "nealpascual");
 
-        if (ActionType == "e")        
-            FileEncrypt(FilePath, "nealpascual");        
-        else         
-            FileDecrypt(FilePath, "nealpascual");
+    //    Console.WriteLine("Please enter File Path");
+    //    var FilePath = Console.ReadLine();
+    //    Console.WriteLine("Write e for Encrypt and d for Decrypt");
+    //    var ActionType = Console.ReadLine();
+    //    Console.WriteLine("Please enter password");
+    //    var Password = Console.ReadLine();
+
+    //    if (ActionType == "e")        
+    //        FileEncrypt(FilePath, Password);        
+    //    else         
+    //        FileDecrypt(FilePath, Password);
         
+    //}
+
+    public static void Main(string[] args)
+    {
+        var FilePath = args[0];
+        var ActionType = args[1];
+        var password = args[2];
+
+        try
+        {
+            if (ActionType == "e")
+                FileEncrypt(FilePath, password);
+            else
+                FileDecrypt(FilePath, password);
+
+            Console.WriteLine((ActionType == "e" ? "Encryption" : "Decryption") + " successful.");
+            Console.ReadKey();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.ReadKey();
+        }
+
     }
-        
+
     public static byte[] GenerateRandomSalt()
     {
         byte[] data = new byte[32];
