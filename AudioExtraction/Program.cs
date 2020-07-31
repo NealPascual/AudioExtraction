@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
 public class AudioExtraction
-{    
-
+{
     public static void Main(string[] args)
     {
         string FilePath;
@@ -28,11 +27,11 @@ public class AudioExtraction
         {
             FilePath = null;
             StoragePath = null;
-            ActionType = null;            
+            ActionType = null;
         }
 
-        var password = System.Configuration.ConfigurationManager.AppSettings["pass"];
-        
+        var password = ConfigurationManager.AppSettings["pass"];
+
         try
         {
             if (ActionType == "Encrypt" && FilePath != null)
@@ -48,9 +47,9 @@ public class AudioExtraction
                 Console.ReadKey();
             }
             else
-                Console.WriteLine("Invalid number of arguments");
+                Console.WriteLine("Invalid arguments");
 
-            
+
         }
         catch (Exception ex)
         {
@@ -76,16 +75,16 @@ public class AudioExtraction
         return data;
     }
 
-    private static void FileEncrypt(string inputFile, string storagePath,string password)
-    {       
+    private static void FileEncrypt(string inputFile, string storagePath, string password)
+    {
 
         //generate random salt
         byte[] salt = GenerateRandomSalt();
 
+        storagePath = (storagePath == null) ? inputFile + ".aes" : storagePath;
 
-        storagePath = (storagePath == null) ? inputFile : storagePath;
         //create output file name
-        FileStream fsCrypt = new FileStream(storagePath + ".aes", FileMode.Create);        
+        FileStream fsCrypt = new FileStream(storagePath, FileMode.Create);
 
         //convert password string to byte arrray
         byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
@@ -95,11 +94,11 @@ public class AudioExtraction
         AES.KeySize = 256;
         AES.BlockSize = 128;
         AES.Padding = PaddingMode.PKCS7;
-                        
+
         var key = new Rfc2898DeriveBytes(passwordBytes, salt, 50000);
         AES.Key = key.GetBytes(AES.KeySize / 8);
         AES.IV = key.GetBytes(AES.BlockSize / 8);
-                
+
         AES.Mode = CipherMode.CFB;
 
         // write salt to the begining of the output file, so in this case can be random every time
@@ -116,13 +115,12 @@ public class AudioExtraction
         try
         {
             while ((read = fsIn.Read(buffer, 0, buffer.Length)) > 0)
-            {                
+            {
                 cs.Write(buffer, 0, read);
             }
 
             // Close up
             fsIn.Close();
-            //fsCrypt.Close(); //temp
         }
         catch (Exception ex)
         {
@@ -132,14 +130,10 @@ public class AudioExtraction
         {
             cs.Close();
             fsCrypt.Close();
-
-            File.Delete(inputFile);
-            FileInfo fi = new FileInfo(inputFile + ".aes");
-            fi.MoveTo(inputFile);
         }
     }
 
-    private static void FileDecrypt(string inputFile, string storagePath,string password) // string outputFile,
+    private static void FileDecrypt(string inputFile, string storagePath, string password)
     {
         byte[] passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
         byte[] salt = new byte[32];
@@ -159,8 +153,9 @@ public class AudioExtraction
         CryptoStream cs = new CryptoStream(fsCrypt, AES.CreateDecryptor(), CryptoStreamMode.Read);
 
 
-        storagePath = (storagePath == null) ? inputFile : storagePath;
-        FileStream fsOut = new FileStream(storagePath + ".aes", FileMode.Create);
+        storagePath = (storagePath == null) ? inputFile.Substring(0, inputFile.LastIndexOf(".")) : storagePath;
+
+        FileStream fsOut = new FileStream(storagePath, FileMode.Create);
 
         int read;
         byte[] buffer = new byte[1048576];
@@ -193,10 +188,6 @@ public class AudioExtraction
         {
             fsOut.Close();
             fsCrypt.Close();
-
-            File.Delete(inputFile);
-            FileInfo fi = new FileInfo(inputFile + ".aes");
-            fi.MoveTo(inputFile);
         }
     }
 }
