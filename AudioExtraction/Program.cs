@@ -63,7 +63,16 @@ public class AudioExtraction
         //generate random salt
         byte[] salt = GenerateRandomSalt();
 
-        storagePath = (storagePath == null) ? inputFile + ".aes" : storagePath;
+        //storagePath = (storagePath == null) ? inputFile + ".aes" : storagePath;
+        if (storagePath == "")
+            storagePath = inputFile + ".aes";
+        else
+        {
+            if (storagePath.LastIndexOf(@"\") == storagePath.Length - 1)
+                storagePath += inputFile.Substring(inputFile.LastIndexOf(@"\") + 1);
+            else
+                storagePath += @"\" + inputFile.Substring(inputFile.LastIndexOf(@"\") + 1);
+        }
 
         //create output file name
         FileStream fsCrypt = new FileStream(storagePath, FileMode.Create);
@@ -135,7 +144,16 @@ public class AudioExtraction
         CryptoStream cs = new CryptoStream(fsCrypt, AES.CreateDecryptor(), CryptoStreamMode.Read);
 
 
-        storagePath = (storagePath == null) ? inputFile.Substring(0, inputFile.LastIndexOf(".")) : storagePath;
+        //storagePath = (storagePath == null) ? inputFile.Substring(0, inputFile.LastIndexOf(".")) : storagePath;
+        if (storagePath == "")
+            storagePath = inputFile.Substring(0, inputFile.LastIndexOf(".")) + inputFile.Substring(inputFile.LastIndexOf(".")) + ".aes";
+        else
+        {
+            if (storagePath.LastIndexOf(@"\") == storagePath.Length - 1)
+                storagePath += inputFile.Substring(inputFile.LastIndexOf(@"\") + 1);
+            else
+                storagePath += @"\" + inputFile.Substring(inputFile.LastIndexOf(@"\") + 1);
+        }
 
         FileStream fsOut = new FileStream(storagePath, FileMode.Create);
 
