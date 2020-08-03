@@ -7,43 +7,25 @@ public class AudioExtraction
 {
     public static void Main(string[] args)
     {
-        string FilePath;
-        string StoragePath;
-        string ActionType;
-
-        if (args.Length == 2)
-        {
-            FilePath = args[0];
-            StoragePath = null;
-            ActionType = args[1];
-        }
-        else if (args.Length == 3)
-        {
-            FilePath = args[0];
-            StoragePath = args[1];
-            ActionType = args[2];
-        }
-        else
-        {
-            FilePath = null;
-            StoragePath = null;
-            ActionType = null;
-        }
+        string FilePath = args[0];
+        string StoragePath = ConfigurationManager.AppSettings["storagePath"];
+        string ActionType = args[1];
+                
 
         var password = ConfigurationManager.AppSettings["pass"];
 
         try
         {
-            if (ActionType == "Encrypt" && FilePath != null)
+            if (ActionType.ToLower() == "encrypt" && FilePath != null)
             {
                 FileEncrypt(FilePath, StoragePath, password);
-                Console.WriteLine((ActionType == "Encrypt" ? "Encryption" : "Decryption") + " successful.");
+                Console.WriteLine("Encryption Successful.");
                 Console.ReadKey();
             }
-            else if (ActionType == "Decrypt" && FilePath != null)
+            else if (ActionType.ToLower() == "decrypt" && FilePath != null)
             {
                 FileDecrypt(FilePath, StoragePath, password);
-                Console.WriteLine((ActionType == "Encrypt" ? "Encryption" : "Decryption") + " successful.");
+                Console.WriteLine("Decryption Successful.");
                 Console.ReadKey();
             }
             else
